@@ -49,6 +49,6 @@ include_directories(
 )
 
 ## make the subscriber executable
-add_executable(husky_teleop_controller src/subscriber.cpp)
+add_executable(husky_teleop_controller src/husky_teleop_controller.cpp)
 target_link_libraries(husky_teleop_controller ${catkin_LIBRARIES} )
 
