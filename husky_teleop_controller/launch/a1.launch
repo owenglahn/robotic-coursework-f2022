@@ -1,0 +1,4 @@
+<launch>
+  <node name="subscriber_node" pkg="husky_teleop_controller" type="subscriber" output="screen"/>
+  <node name="publisher_node" pkg="husky_teleop_controller" type="subscriber" output="screen"/>
+</launch>
