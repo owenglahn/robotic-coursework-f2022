@@ -1,6 +1,0 @@
-devel_space: /home/oglahn/comp514/robotic-coursework-f2022/husky_teleop_controller/devel
-install: false
-install_space: /home/oglahn/comp514/robotic-coursework-f2022/husky_teleop_controller/install
-profile: default
-source_space: /home/oglahn/comp514/robotic-coursework-f2022/husky_teleop_controller/src
-workspace: /home/oglahn/comp514/robotic-coursework-f2022/husky_teleop_controller

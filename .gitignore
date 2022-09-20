@@ -1,2 +1,4 @@
 .catkin_tools/
 .vscode/
+*/build
+*/devel
