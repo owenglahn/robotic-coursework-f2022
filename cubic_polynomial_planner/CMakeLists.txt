@@ -19,7 +19,7 @@ find_package(catkin REQUIRED
     
 add_service_files(
   FILES
-  my_service.srv
+  move_robot.srv
 )
 
 # generate_messages(
@@ -62,10 +62,5 @@ include_directories(
 )
 
 ## make the publisher executable
-add_executable(hello_publisher src/publisher.cpp )
-target_link_libraries(hello_publisher ${catkin_LIBRARIES} )
-
-## make the subscriber executable
-add_executable(hello_subscriber src/subscriber.cpp)
-target_link_libraries(hello_subscriber ${catkin_LIBRARIES} )
-
+add_executable(server src/server.cpp )
+target_link_libraries(server ${catkin_LIBRARIES} )
