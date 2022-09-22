@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>cubic_polynomial_planner</name>
+  <version>0.1.0</version>
+  <description>COMP 514 assignment 2</description>
+  <maintainer email="owen.glahn@mail.mcgill.ca">Owen Glahn</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>roscpp</depend>
+  <depend>genmsg</depend>
+  <depend>std_msgs</depend>
+  <depend>add_service_files</depend>
+  <depend>generate_messages</depend>
+  <depend>cubic_polynomial_planner_gencpp</depend>
+</package>
+
