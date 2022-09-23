@@ -22,10 +22,9 @@ add_service_files(
   move_robot.srv
 )
 
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -44,9 +43,6 @@ catkin_package(
     roscpp
     std_msgs
     genmsg
-    add_service_files
-    generate_messages
-    cubic_polynomial_planner_gencpp
   DEPENDS 
 )
 
@@ -62,5 +58,6 @@ include_directories(
 )
 
 ## make the publisher executable
-add_executable(server src/server.cpp )
-target_link_libraries(server ${catkin_LIBRARIES} )
+add_executable(${PROJECT_NAME}_server src/server.cpp )
+target_link_libraries(${PROJECT_NAME}_server ${catkin_LIBRARIES} )
+add_dependencies(${PROJECT_NAME}_server cubic_polynomial_planner_gencpp)
