@@ -34,7 +34,6 @@ public:
 	}
 
 	void update_function() {
-		duration = ros::Time::now() - ros_start_time; 
 		Eigen::Vector3d current_pos = get_position(duration);
 		start_pose.position.x = current_pos[0];
 		start_pose.position.y = current_pos[1];
@@ -69,6 +68,7 @@ public:
 		this -> duration = ros::Time::now() - this -> ros_start_time;
 		while (duration.toSec() < target_time.toSec()) {
 			this -> update_function();
+			duration = ros::Time::now() - ros_start_time; 
 		}
 		res.result = "Success";
 		return true;
