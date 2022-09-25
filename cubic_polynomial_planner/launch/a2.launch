@@ -1,0 +1,3 @@
+<launch>
+	<node name="move_robot_node" pkg="cubic_polynomial_planner" type="cubic_polynomial_planner_server" output="screen"/>	
+</launch>
