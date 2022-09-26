@@ -47,6 +47,7 @@ public:
 					cubic_polynomial_planner::move_robot::Response &res) {
 		gazebo_msgs::GetModelState srv;
 		srv.request.model_name = "firefly";
+		srv.request.relative_entity_name = "world";
 
 		if (this -> model_state_client.call(srv)) {
 			start_pose = srv.response.pose;
