@@ -22,6 +22,7 @@ public:
 	Eigen::Vector3d get_position(ros::Duration t) {
 		double s_t = 3/pow(target_time.toSec(), 2) * pow(t.toSec(), 2) 
 			- 2/pow(target_time.toSec(), 3) * pow(t.toSec(), 3);
+		ROS_INFO("time scale=%f", s_t);
 		return pose_to_vector(start_pose) + s_t * (target_pos - pose_to_vector(start_pose));
 	}
 	
@@ -35,11 +36,12 @@ public:
 
 	void update_function() {
 		Eigen::Vector3d current_pos = get_position(duration);
-		start_pose.position.x = current_pos[0];
-		start_pose.position.y = current_pos[1];
-		start_pose.position.z = current_pos[2];
+		current_pose.position.x = current_pos[0];
+		current_pose.position.y = current_pos[1];
+		current_pose.position.z = current_pos[2];
+		ROS_INFO("pose: x=%f, y=%f, z=%f", current_pos[0], current_pos[1], current_pos[2]);
 		geometry_msgs::PoseStamped toPublish;
-		toPublish.pose = start_pose;
+		toPublish.pose = current_pose;
 		this -> pub.publish(toPublish);
 	}
 
@@ -51,7 +53,9 @@ public:
 
 		if (this -> model_state_client.call(srv)) {
 			start_pose = srv.response.pose;
-			ROS_INFO("Current position: x=%f, y=%f, z=%f", 
+			current_pose.orientation = start_pose.orientation;
+			current_pose.position = start_pose.position;
+			ROS_INFO("Start position: x=%f, y=%f, z=%f", 
 				start_pose.position.x, start_pose.position.y, start_pose.position.z);
 		} else {
 			ROS_ERROR("Failed to call service /gazebo/get_model_state");
@@ -68,6 +72,7 @@ public:
 		this -> ros_start_time = ros::Time::now();
 		this -> duration = ros::Time::now() - this -> ros_start_time;
 		while (duration.toSec() < target_time.toSec()) {
+			ROS_INFO("duration=%f", duration.toSec());
 			this -> update_function();
 			duration = ros::Time::now() - ros_start_time; 
 		}
@@ -84,6 +89,7 @@ public:
 	ros::Publisher pub;
 	Eigen::Vector3d target_pos;
 	geometry_msgs::Pose start_pose;
+	geometry_msgs::Pose current_pose;
 	ros::Duration target_time;
  };
 
