@@ -1,0 +1,2 @@
+MODEL_NAME: "/gen3/joint_group_position_controller"
+RELATIVE_ENTITY_NAME: "world"

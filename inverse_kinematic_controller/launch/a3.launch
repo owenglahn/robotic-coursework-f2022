@@ -1,0 +1,8 @@
+<launch>
+    <node pkg="inverse_kinematic_controller"
+        type="inverse_kinematic_controller_server" 
+        name="main" output="screen">
+        <rosparam command="load"
+            file="$(find inverse_kinematic_controller)/config/config.yaml"/>
+    </node>
+</launch>

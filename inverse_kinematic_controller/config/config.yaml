@@ -1,0 +1,7 @@
+# topic to read from
+READ_TOPIC: /gen3/joint_states
+# service to advertise
+WRITE_SERVICE: /cubic_polynomial_planner/move_robot
+
+MODEL_NAME: /gen3/joint_group_position_controller
+RELATIVE_ENTITY_NAME: world

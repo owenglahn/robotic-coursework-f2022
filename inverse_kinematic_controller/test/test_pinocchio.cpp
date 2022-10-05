@@ -10,7 +10,7 @@
 int main() {
 
 	// change this to your directory
-	std::string urdf_file_name = "/home/hsiuchin/code/COMP514/robots/ros_kortex/kortex_description/urdf/gen3.urdf" ;
+	std::string urdf_file_name = "/home/oglahn/comp514/ros_kortex/kortex_description/urdf/gen3.urdf" ;
 
 	pinocchio::Model model;													// create a model object
 	pinocchio::urdf::buildModel(urdf_file_name, model, false);				// read the URDF file

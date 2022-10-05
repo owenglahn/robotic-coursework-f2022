@@ -7,16 +7,16 @@
 #include <eigen3/Eigen/Dense>
 #include <cmath>
 
-class Server {
+class CubicPolyServer {
 public:
-	Server() {
+	CubicPolyServer(std::string adv_service, std::string read_service, std::string write_topic) {
 		// advertise service	
 		this -> service = node_handle
-			.advertiseService("cubic_polynomial_planner/move_robot", &Server::call_back, this);	
+			.advertiseService(adv_service, &CubicPolyServer::call_back, this);	
 		this -> model_state_client = node_handle
-			.serviceClient<gazebo_msgs::GetModelState>("/gazebo/get_model_state");
+			.serviceClient<gazebo_msgs::GetModelState>(read_service);
 		this -> pub = node_handle
-			.advertise<geometry_msgs::PoseStamped>("/firefly/command/pose", 1);
+			.advertise<geometry_msgs::PoseStamped>(write_topic, 1);
 	}
 	
 	Eigen::Vector3d get_position(ros::Duration t) {
@@ -48,8 +48,8 @@ public:
 	bool call_back(cubic_polynomial_planner::move_robot::Request &req, 
 					cubic_polynomial_planner::move_robot::Response &res) {
 		gazebo_msgs::GetModelState srv;
-		srv.request.model_name = "firefly";
-		srv.request.relative_entity_name = "world";
+		srv.request.model_name = getenv("MODEL_NAME");
+		srv.request.relative_entity_name = getenv("RELATIVE_ENTITY_NAME");
 
 		if (this -> model_state_client.call(srv)) {
 			start_pose = srv.response.pose;
@@ -99,7 +99,8 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "move_robot_node") ;
 	
 	// create server
-	Server server;
+	CubicPolyServer server("/cubic_polynomial_planner/move_robot", 
+		"/gazebo/get_model_state", "/firefly/command/pose");
 
 	// specify the frequency to 10HZ
 	ros::Rate loopRate(10) ;
