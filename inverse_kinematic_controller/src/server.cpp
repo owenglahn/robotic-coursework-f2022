@@ -18,7 +18,8 @@ class Server {
 public:
     Server(std::string adv_service, std::string read_service, std::string write_topic) {
         start = true;
-        node_handle.advertiseService(adv_service, &Server::call_back, this);
+        ROS_INFO("Advertising service "); 
+        node_handle.advertiseService("/cubic_polynomial_planner/move_robot", &Server::call_back, this);
         subscriber = node_handle.subscribe<sensor_msgs::JointState>(read_service, 2, 
             &Server::update_joint_position, this);
         publisher = node_handle.advertise<std_msgs::Float64MultiArray>(write_topic, 2);

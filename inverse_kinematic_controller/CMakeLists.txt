@@ -40,6 +40,7 @@ catkin_package(
     	${EIGEN3_INCLUDE_DIRS}
     	${PINOCCHIO_INCLUDE_DIRS}
   	LIBRARIES
+		${PROJECT_NAME}
   		pinocchio    	  		
   	CATKIN_DEPENDS
     	roscpp
@@ -108,4 +109,4 @@ install(
 ## make the publisher executable
 add_executable(${PROJECT_NAME}_server src/main.cpp)
 target_link_libraries(${PROJECT_NAME}_server ${catkin_LIBRARIES} ${PINOCCHIO_LIBRARIES} )
-add_dependencies(${PROJECT_NAME}_server cubic_polynomial_planner_gencpp)
+add_dependencies(${PROJECT_NAME}_server ${PROJECT_NAME}_gencpp)
