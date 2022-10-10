@@ -19,7 +19,7 @@ public:
     Server(std::string adv_service, std::string read_service, std::string write_topic) {
         start = true;
         this -> service = node_handle.advertiseService("/cubic_polynomial_planner/move_robot", &Server::call_back, this);
-        this -> subscriber = node_handle.subscribe<sensor_msgs::JointState>(read_service, 2, 
+        this -> subscriber = node_handle.subscribe<sensor_msgs::JointState>("/gen3/joint_states", 2, 
             &Server::update_joint_position, this);
         this -> publisher = node_handle.advertise<std_msgs::Float64MultiArray>(write_topic, 2);
         urdf_file_name = 
@@ -27,7 +27,7 @@ public:
         pinocchio::urdf::buildModel(urdf_file_name, model, false);
 
         dim_joints = model.nq;
-        jacobian = Eigen::MatrixXd::Zero(3, dim_joints);
+        jacobian = Eigen::MatrixXd::Zero(6, dim_joints);
         pseudo_inv_jacobian = Eigen::MatrixXd::Zero(dim_joints, 3);
         joint_pos = Eigen::VectorXd::Random(dim_joints); 
         joint_vel = Eigen::VectorXd::Random(dim_joints);
@@ -35,7 +35,6 @@ public:
 
     // call back for joint state
     void update_joint_position(sensor_msgs::JointState joint_state) {
-        std::cout << "Started joint update." << std::endl;
         pinocchio::Data data(model);	
         const int JOINT_ID = 7;
         double dt = 0.002;
@@ -47,6 +46,7 @@ public:
 
         pinocchio::forwardKinematics(model, data, joint_pos, joint_vel);							// forward kinematics
         if (start) {
+            std::cout << start << std::endl;
             pinocchio::SE3 pose_now = data.oMi[JOINT_ID];
             effector_start = pose_now.translation();
             start = false;
@@ -56,8 +56,7 @@ public:
         pinocchio::getJointJacobian(model, data, JOINT_ID, 
             pinocchio::ReferenceFrame::LOCAL_WORLD_ALIGNED, jacobian);
         
-        pseudo_inv_jacobian = pseudo_inverse(jacobian);
-        std::cout << "Finished Joint update." << std::endl;
+        pseudo_inv_jacobian = pseudo_inverse(jacobian.block(0, 0, 3, dim_joints));
     }
 
     Eigen::MatrixXd pseudo_inverse(Eigen::MatrixXd matrix) {
@@ -69,9 +68,11 @@ public:
         Eigen::Vector3d effector_pos = get_position(t, T, effector_start, target_pos);
 
         std_msgs::Float64MultiArray new_joint_pos;
-        new_joint_pos.layout.dim = dim_joints;
-        // this is causing error
-        // maybe need to have the effector positions be a VectorXd
+        new_joint_pos.layout.dim.push_back(std_msgs::MultiArrayDimension());
+        new_joint_pos.layout.dim[0].size = dim_joints;
+        new_joint_pos.layout.dim[0].stride = 1;
+        new_joint_pos.layout.dim[0].label = "joints";
+
          std::cout << "Effector position: " << effector_pos << std::endl;
          std::cout << "ee position rows" << effector_pos.rows() << std::endl;
         std::cout<< "Inverse jacobian cols: " << pseudo_inv_jacobian.cols() << std::endl
@@ -79,9 +80,11 @@ public:
         Eigen::VectorXd product = pseudo_inv_jacobian * effector_pos; 
         ROS_INFO("got joint_pos");
         std::cout << "New Joint position: " << product << std::endl;
-        for (int i = 0; i < dim_joints; i++) {
-            new_joint_pos.data[i] = product[i];
-        }
+      new_joint_pos.data.insert(new_joint_pos.data.end(), product.data(), product.data()
+         + dim_joints);
+      //   for (int i = 0; i < dim_joints; i++) {
+      //       new_joint_pos.data[i] = product[i];
+      //   }
         std::cout << "Set new joint pos... publishing" << std::endl;
         publisher.publish(new_joint_pos);
     }
