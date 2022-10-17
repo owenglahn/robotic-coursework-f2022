@@ -64,8 +64,7 @@ public:
     }
     
     void update_function(ros::Duration t, ros::Duration T, Eigen::Vector3d target_pos) {
-        ROS_INFO("update_function called");
-        Eigen::Vector3d effector_pos = get_position(t, T, effector_start, target_pos);
+        Eigen::Vector3d effector_velo = get_velocity(t, T, effector_start, target_pos);
 
         std_msgs::Float64MultiArray new_joint_pos;
         new_joint_pos.layout.dim.push_back(std_msgs::MultiArrayDimension());
@@ -73,19 +72,11 @@ public:
         new_joint_pos.layout.dim[0].stride = 1;
         new_joint_pos.layout.dim[0].label = "joints";
 
-         std::cout << "Effector position: " << effector_pos << std::endl;
-         std::cout << "ee position rows" << effector_pos.rows() << std::endl;
-        std::cout<< "Inverse jacobian cols: " << pseudo_inv_jacobian.cols() << std::endl
-        << "Inverse jacobian rows: " << pseudo_inv_jacobian.rows()<< std::endl;
-        Eigen::VectorXd product = pseudo_inv_jacobian * effector_pos; 
-        ROS_INFO("got joint_pos");
-        std::cout << "New Joint position: " << product << std::endl;
+        Eigen::VectorXd joint_velo_calc = pseudo_inv_jacobian * effector_velo; 
+        Eigen::VectorXd product = joint_pos + joint_velo_calc * (ros::Time::now() - t).toSec();
+        joint_pos = product;
       new_joint_pos.data.insert(new_joint_pos.data.end(), product.data(), product.data()
          + dim_joints);
-      //   for (int i = 0; i < dim_joints; i++) {
-      //       new_joint_pos.data[i] = product[i];
-      //   }
-        std::cout << "Set new joint pos... publishing" << std::endl;
         publisher.publish(new_joint_pos);
     }
 
