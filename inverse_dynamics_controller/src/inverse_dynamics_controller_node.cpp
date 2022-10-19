@@ -1,19 +1,18 @@
+#include "inverse_dynamics_controller/InverseDynamicsController.hpp" 	// include your ROS class
 #include <ros/ros.h>
-#include "ros_package_template/RosPackageTemplate.hpp" 	// include your ROS class
 
 int main(int argc, char** argv) {
 
 	// Initialize ROS
-	ros::init(argc, argv, "ros_package_template");
+	ros::init(argc, argv, "inverse_dynamics_controller");
 
 	// Add a node handle
 	ros::NodeHandle nodeHandle("~");
 
-	// specify the frequency to 10HZ
-	ros::Rate loopRate(1000) ;
+	ros::Rate loopRate(5);
 
 	// Make an instance of your ROS package
-	ros_package_template::RosPackageTemplate rosPackageTemplate(nodeHandle);
+	inverse_dynamics_controller::InverseDynamicsController inverseDynamicsController(nodeHandle);
 
 
 	while ( ros::ok() ) {
@@ -22,7 +21,7 @@ int main(int argc, char** argv) {
 		ros::spinOnce() ;
 
 		// call the update function
-		rosPackageTemplate.update() ;
+		inverseDynamicsController.update() ;
 
 		// sleep for any time remaining to the publish rate
 		loopRate.sleep() ;

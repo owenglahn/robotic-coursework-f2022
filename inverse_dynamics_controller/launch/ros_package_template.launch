@@ -1,7 +1,7 @@
 <launch>
 
   <!-- Launch ROS Package Template Node -->
-  <node pkg="ros_package_template" type="ros_package_template" name="ros_package_template" output="screen">
+  <node pkg="inverse_dynamics_controller" type="inverse_dynamics_controller" name="inverse_dynamics_controller" output="screen">
     <rosparam command="load" file="$(dirname)/../config/default.yaml" />
   </node>
 

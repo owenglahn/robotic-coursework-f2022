@@ -1,31 +1,30 @@
 #pragma once
 
-#include <ros/ros.h>
-#include <sensor_msgs/Temperature.h>
-#include <std_srvs/Trigger.h>
+#include <sensor_msgs/JointState.h>
 #include <string>
 
-#include "ros_package_template/Algorithm.hpp"
+#include "inverse_dynamics_controller/PotentialField.hpp"
+#include "inverse_dynamics_controller/move_to.h"
+#include <ros/ros.h>
 
-
-namespace ros_package_template {
+namespace inverse_dynamics_controller {
 
 /*!
- * The ROS wrapper for Algorithm
+ * The ROS wrapper for PotentialField
  */
-class RosPackageTemplate {
+class InverseDynamicsController {
 
 	public:
 	/*!
 	* Constructor.
 	* @param nodeHandle the ROS node handle.
 	*/
-	RosPackageTemplate(ros::NodeHandle& nodeHandle);
+	InverseDynamicsController(ros::NodeHandle& nodeHandle);
 
   	/*!
   	 * Destructor.
   	 */
-	virtual ~RosPackageTemplate();
+	virtual ~InverseDynamicsController();
 
 	/*
 	 * A function handling necessary actions in every loop
@@ -51,7 +50,8 @@ class RosPackageTemplate {
 	* @param response the provided response.
 	* @return true if successful, false otherwise.
 	*/
-	bool serviceCallback(std_srvs::Trigger::Request& request, std_srvs::Trigger::Response& response);
+	bool serviceCallback(inverse_dynamics_controller::move_to::Request& request, 
+		inverse_dynamics_controller::move_to::Response& response);
 
 	//! ROS node handle.
 	ros::NodeHandle& nodeHandle_;
@@ -70,8 +70,9 @@ class RosPackageTemplate {
 	ros::ServiceServer serviceServer_;
 	std::string serviceName_;
 
-	//! Algorithm computation object.
-	Algorithm algorithm_;
+	//! PotentialField computation object.
+	PotentialField potentialFieldTask;
+	PotentialField potentialFieldJoint;
 };
 
 } /* namespace */
