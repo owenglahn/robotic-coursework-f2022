@@ -43,7 +43,6 @@ void InverseDynamicsController::topicCallback(const sensor_msgs::JointState& joi
 	// do something here
 	potentialFieldTask.update_joints(joint_state);	
 	potentialFieldJoint.update_joints(joint_state);
-	this -> update();
 }
 
 bool InverseDynamicsController::serviceCallback(

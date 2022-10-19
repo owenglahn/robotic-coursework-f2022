@@ -14,8 +14,6 @@
 namespace inverse_dynamics_controller {
 
 PotentialField::PotentialField() {
-	pinocchio::urdf::buildModel(urdfFileName, model, false);
-	data = new pinocchio::Data(model);
 	dim_joints = model.nq;
 	joint_pos = Eigen::VectorXd::Zero(dim_joints);
 	joint_vel = Eigen::VectorXd::Zero(dim_joints);
@@ -105,6 +103,10 @@ Eigen::MatrixXd PotentialField::get_P() {
 void PotentialField::update() {
 	const int JOINT_ID = 7;
 	const float dt = 0.005;
+
+	pinocchio::urdf::buildModel(urdfFileName, model, false);
+	data = new pinocchio::Data(model);
+
 	pinocchio::forwardKinematics(model, *data, joint_pos, joint_vel);
 	pinocchio::SE3 pose_now = data -> oMi[JOINT_ID];
 	task_fbk_pos = pose_now.translation();
