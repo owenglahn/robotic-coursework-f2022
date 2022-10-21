@@ -6,20 +6,23 @@ int main(int argc, char** argv) {
 	// Initialize ROS
 	ros::init(argc, argv, "inverse_dynamics_controller");
 
+	std::cout << "initialized ros" << std::endl;
 	// Add a node handle
-	ros::NodeHandle nodeHandle("~");
+	ros::NodeHandle nodeHandle("/planner");
 
 	ros::Rate loopRate(5);
-
+	std::cout << "set loop rate" << std::endl;
 	// Make an instance of your ROS package
-	inverse_dynamics_controller::InverseDynamicsController inverseDynamicsController(nodeHandle);
+	inverse_dynamics_controller::InverseDynamicsController 
+		inverseDynamicsController(nodeHandle);
+	std::cout << "created controller" << std::endl;
 
 
 	while ( ros::ok() ) {
 
 		// the callbacks function will automatically be called.
 		ros::spinOnce() ;
-
+		std::cout << "in main loop" << std::endl;
 		// call the update function
 		inverseDynamicsController.update() ;
 

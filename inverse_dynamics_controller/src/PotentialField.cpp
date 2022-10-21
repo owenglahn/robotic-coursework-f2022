@@ -19,8 +19,8 @@ PotentialField::PotentialField() {
 	joint_vel = Eigen::VectorXd::Zero(dim_joints);
 	this -> K = .0001 * Eigen::MatrixXd::Identity(3,3);
 	this -> D = .0001 * Eigen::MatrixXd::Identity(3,3);
-	jacobian = Eigen::MatrixXd::Random(6, dim_joints);
-	jacobian_dot = Eigen::MatrixXd::Random(6, dim_joints);
+	jacobian = Eigen::MatrixXd::Zero(6, dim_joints);
+	jacobian_dot = Eigen::MatrixXd::Zero(6, dim_joints);
 	task_ref_pos = Eigen::Vector3d::Zero();
 	target_pos = Eigen::Vector3d::Zero();
 	task_fbk_pos = Eigen::Vector3d::Zero();
@@ -126,6 +126,7 @@ void PotentialField::update() {
 	task_ref_pos = task_fbk_pos + task_ref_dot * dt;
 	task_fbk_dot = jacobian * joint_vel;
 	task_ref_acc = 1/dt * (task_ref_dot - task_fbk_dot);
+	std::cout<< "Finished PotentialField update" << std::endl;
 }
 
 void PotentialField::update_joint_refs() {
@@ -133,6 +134,7 @@ void PotentialField::update_joint_refs() {
 	joint_ref_dot = K * (joint_tar - joint_pos);
 	joint_ref_pos = joint_pos + joint_ref_dot * dt;
 	joint_ref_acc = 1/dt * (joint_ref_dot - joint_vel);
+	std::cout << "finished update joint refs" << std::endl;
 }
 
 void PotentialField::update_joints(const sensor_msgs::JointState& joint_state) {
@@ -140,6 +142,7 @@ void PotentialField::update_joints(const sensor_msgs::JointState& joint_state) {
 		joint_pos[i] = joint_state.position[i];
 		joint_vel[i] = joint_state.velocity[i];
 	}
+	std::cout << "finished update joint pos and vel" << std::endl;
 }
 
 } /* namespace */
