@@ -71,8 +71,8 @@ class InverseDynamicsController {
 	std::string serviceName_;
 
 	//! PotentialField computation object.
-	PotentialField potentialFieldTask;
-	PotentialField potentialFieldJoint;
+	PotentialField* potentialFieldTask;
+	PotentialField* potentialFieldJoint;
 };
 
 } /* namespace */

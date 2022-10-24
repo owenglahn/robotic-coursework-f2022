@@ -1,5 +1,5 @@
 subscriber_topic: /gen3/joint_states
-urdf_file: gen3/gen3.urdf
+urdf_file: /home/oglahn/comp514/asgn4/src/robotic-coursework-f2022/inverse_dynamics_controller/urdf/gen3.urdf 
 advertiser_service: /planner/move_to
 publisher_topic: /gen3/joint_group_effort_controller/command
 dt: 0.005

@@ -21,12 +21,12 @@ namespace inverse_dynamics_controller {
 class PotentialField {
 
 	public:
-	std::string urdfFileName;
+	Eigen::Vector3d target_pos;
 
 	/*!
 	* Constructor.
 	*/
-	PotentialField();
+	PotentialField(const std::string urdfFileName);
 
 	/*!
 	* Destructor.
@@ -58,13 +58,14 @@ class PotentialField {
 	Eigen::MatrixXd jacobian;
 	Eigen::MatrixXd jacobian_dot;
 	Eigen::MatrixXd K;
+	Eigen::MatrixXd K_joint;
 	Eigen::MatrixXd D;
+	Eigen::MatrixXd D_joint;
 	pinocchio::Model model;
 	int dim_joints;
 	Eigen::Vector3d task_ref_pos;
 	Eigen::Vector3d task_fbk_pos;
 	Eigen::Vector3d task_fbk_dot;
-	Eigen::Vector3d target_pos;
 	Eigen::Vector3d task_ref_dot;
 	Eigen::Vector3d task_ref_acc;
 	pinocchio::Data *data;
