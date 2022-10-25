@@ -73,6 +73,8 @@ class InverseDynamicsController {
 	//! PotentialField computation object.
 	PotentialField* potentialFieldTask;
 	PotentialField* potentialFieldJoint;
+	double k_scale;
+	double d_scale;
 };
 
 } /* namespace */

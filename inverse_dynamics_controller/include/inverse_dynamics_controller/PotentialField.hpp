@@ -26,7 +26,7 @@ class PotentialField {
 	/*!
 	* Constructor.
 	*/
-	PotentialField(const std::string urdfFileName);
+	PotentialField(const std::string urdfFileName, double k_scale, double d_scale);
 
 	/*!
 	* Destructor.
@@ -51,6 +51,7 @@ class PotentialField {
 	Eigen::VectorXd get_joint_torque(const Eigen::VectorXd& joint_cmd_acc);
 	Eigen::VectorXd get_joint_torque_all_terms();
 	Eigen::MatrixXd get_P();
+	bool not_arrived();
 
 	private:
 	Eigen::VectorXd joint_pos;

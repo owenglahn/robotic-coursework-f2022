@@ -15,9 +15,9 @@ InverseDynamicsController::InverseDynamicsController(ros::NodeHandle& nodeHandle
 	}
 	std::cout << "read params" << std::endl;
 	potentialFieldTask = 
-		new PotentialField(urdfFileName);
+		new PotentialField(urdfFileName, k_scale, d_scale);
 	potentialFieldJoint = 
-		new PotentialField(urdfFileName);
+		new PotentialField(urdfFileName, k_scale, d_scale);
 	// prepare all publishers, subscribers, servers, clients, etc
 	subscriber_ 	= nodeHandle_.subscribe(subscriberTopic_, 1, &InverseDynamicsController::topicCallback, this);
 	serviceServer_ 	= nodeHandle_.advertiseService(serviceName_, &InverseDynamicsController::serviceCallback, this);
@@ -39,8 +39,10 @@ bool InverseDynamicsController::readParameters() {
 	}
 	if (!nodeHandle_.getParam("/inverse_dynamics_controller/urdf_file", urdfFileName) ||
 		!nodeHandle_.getParam("/inverse_dynamics_controller/advertiser_service", serviceName_) || 
-		!nodeHandle_.getParam("/inverse_dynamics_controller/publisher_topic", publisherTopic_)) {
-		std::cout << urdfFileName << std::endl;
+		!nodeHandle_.getParam("/inverse_dynamics_controller/publisher_topic", publisherTopic_) ||
+		!nodeHandle_.getParam("/inverse_dynamics_controller/k_scale", k_scale) || 
+		!nodeHandle_.getParam("/inverse_dynamics_controller/d_scale", d_scale)) {
+
 		return false;
 	}
 	return true;
@@ -67,17 +69,22 @@ bool InverseDynamicsController::serviceCallback(
 	potentialFieldTask -> target_pos[0] = request.x;
 	potentialFieldTask -> target_pos[1] = request.y;
 	potentialFieldTask -> target_pos[2] = request.z;
-	update();
-	Eigen::VectorXd t_total = potentialFieldTask -> get_task_torque_all_terms() + 
-		potentialFieldJoint -> get_P() * potentialFieldJoint -> get_joint_torque_all_terms();
-	std::cout << "Got joint torque" << std::endl;
-	std_msgs::Float64MultiArray toSend;	
-	std::cout << potentialFieldJoint -> get_P() << std::endl;
-	for (int i = 0; i < 7; i++) {
-		toSend.data[i] = t_total[i];
+	ros::Time start_time = ros::Time::now();
+	ros::Duration t(0);
+	while (potentialFieldTask -> not_arrived()) {
+		t = ros::Time::now() - start_time;
+		if (t.toSec() > 10) {
+			// time out
+			return false;
+		}
+		update(); 
+		Eigen::VectorXd t_total = potentialFieldTask -> get_task_torque_all_terms() + 
+			potentialFieldJoint -> get_P() * potentialFieldJoint -> get_joint_torque_all_terms();
+		std_msgs::Float64MultiArray toSend;	
+		toSend.data.insert(toSend.data.end(), t_total.data(), t_total.data() 
+			+ 7);
+		publisher_.publish(toSend);
 	}
-	std::cout << "Set array" << std::endl;
-	publisher_.publish(toSend);
 	return true;
 }
 
