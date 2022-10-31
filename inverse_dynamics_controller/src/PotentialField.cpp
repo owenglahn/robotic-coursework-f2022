@@ -10,33 +10,39 @@
 #include <Eigen/Dense>
 #include <sensor_msgs/JointState.h>
 #include <cmath>
+#include <ros/ros.h>
 
 namespace inverse_dynamics_controller {
 
-PotentialField::PotentialField(const std::string urdfFileName, double k_scale,
-	double d_scale) {
+PotentialField::PotentialField(const std::string urdfFileName, double k_attr,
+	double k_task, double k_joint, double d_attr, double d_task, double d_joint) {
 	pinocchio::urdf::buildModel(urdfFileName, model, false);
-	data = new pinocchio::Data(model);
-	dim_joints = model.nq;
-	joint_pos = Eigen::VectorXd::Zero(dim_joints);
-	joint_vel = Eigen::VectorXd::Zero(dim_joints);
-	this -> K = k_scale * Eigen::MatrixXd::Identity(3,3);
-	this -> K_joint = k_scale * Eigen::MatrixXd::Identity(dim_joints, dim_joints);
-	this -> D = d_scale * Eigen::MatrixXd::Identity(3,3);
-	this -> D_joint = d_scale * Eigen::MatrixXd::Identity(dim_joints, dim_joints);
-	jacobian = Eigen::MatrixXd::Zero(6, dim_joints);
-	jacobian_dot = Eigen::MatrixXd::Zero(6, dim_joints);
-	task_ref_pos = Eigen::Vector3d::Zero();
-	target_pos = Eigen::Vector3d::Zero();
-	task_fbk_pos = Eigen::Vector3d::Zero();
-	task_fbk_dot = Eigen::Vector3d::Zero();
-	task_ref_dot = Eigen::Vector3d::Zero();
-	task_ref_acc = Eigen::Vector3d::Zero();
-	joint_ref_pos = Eigen::VectorXd::Zero(dim_joints);
-	joint_ref_dot = Eigen::VectorXd::Zero(dim_joints);
-	joint_ref_acc = Eigen::VectorXd::Zero(dim_joints);
-	joint_tar = Eigen::VectorXd::Zero(dim_joints);
-	joint_tar << 0.0, 0.0, 0.0, -1.57, 0.0, 0.75, 1.57;
+	this -> data = new pinocchio::Data(model);
+	this -> dim_joints = model.nq;
+	this -> joint_pos = Eigen::VectorXd::Zero(dim_joints);
+	this -> joint_vel = Eigen::VectorXd::Zero(dim_joints);
+	this -> k_attr = k_attr;
+	this -> k_task = k_task;
+	this -> k_joint = k_joint;
+	this -> d_attr = d_attr;
+	this -> d_task = d_task;
+	this -> d_joint = d_joint;
+	this -> jacobian = Eigen::MatrixXd::Zero(6, dim_joints);
+	this -> jacobian_dot = Eigen::MatrixXd::Zero(6, dim_joints);
+	this -> task_ref_pos = Eigen::Vector3d::Zero();
+	this -> task_fbk_pos = Eigen::Vector3d::Zero();
+	this -> task_fbk_dot = Eigen::Vector3d::Zero();
+	this -> task_ref_dot = Eigen::Vector3d::Zero();
+	this -> task_ref_acc = Eigen::Vector3d::Zero();
+	this -> joint_ref_pos = Eigen::VectorXd::Zero(dim_joints);
+	this -> joint_ref_dot = Eigen::VectorXd::Zero(dim_joints);
+	this -> joint_ref_acc = Eigen::VectorXd::Zero(dim_joints);
+	this -> joint_tar = Eigen::VectorXd::Zero(dim_joints);
+	this -> joint_tar << 0.0, 0.0, 0.0, -1.57, 0.0, 0.75, 1.57;
+	const int JOINT_ID = 7;
+	pinocchio::forwardKinematics(model, *data, joint_tar, joint_vel);
+	pinocchio::SE3 pose_now = data -> oMi[JOINT_ID];
+	this -> target_pos = pose_now.translation();
 }
 
 PotentialField::~PotentialField() {
@@ -54,11 +60,13 @@ void scale_task_dot(Eigen::Vector3d& task_dot) {
 }
 
 Eigen::MatrixXd pseudo_inverse(Eigen::MatrixXd matrix) {
-	return matrix.transpose() * (matrix * matrix.transpose()).inverse();
+	return matrix.completeOrthogonalDecomposition().pseudoInverse();
+	// return matrix.transpose() * (matrix * matrix.transpose()).inverse();
 }
 
 Eigen::Vector3d PotentialField::get_task_cmd_acc() {
-	return task_ref_acc + D * (task_ref_dot - task_fbk_dot) + K * (task_ref_pos - task_fbk_pos);
+	return task_ref_acc + d_task * (task_ref_dot - task_fbk_dot) + 
+		k_task * (task_ref_pos - task_fbk_pos);
 }
 
 Eigen::MatrixXd PotentialField::get_alpha() {
@@ -83,29 +91,28 @@ Eigen::VectorXd PotentialField::get_task_torque_all_terms() {
 	Eigen::MatrixXd alpha = this -> get_alpha();
 	Eigen::Vector3d n = this -> get_n(alpha);
 	Eigen::Vector3d F = this -> get_F_cmd(alpha, task_cmd_acc, n);
+	std::cout << "task_cmd_acc\n" << task_cmd_acc << std::endl;
+	std::cout << "alpha\n" << alpha << std::endl;
+	std::cout << "n\n" << n << std::endl;
+	std::cout << "F\n" << F << std::endl;
 	return get_task_torque(F);
 }
 
 Eigen::VectorXd PotentialField::get_joint_cmd_acc() {
-	return joint_ref_acc + D_joint * (joint_ref_dot - joint_vel) + 
-		K_joint * (joint_ref_pos - joint_pos);
+	return joint_ref_acc + d_joint * (joint_ref_dot - joint_vel) + 
+		k_joint * (joint_ref_pos - joint_pos);
 }
 
 Eigen::VectorXd PotentialField::get_joint_torque(const Eigen::VectorXd& joint_cmd_acc) {
-	std::cout << "M: " << data -> M << std::endl;
 	return data -> M * joint_cmd_acc + data -> nle;
 }
-
 Eigen::VectorXd PotentialField::get_joint_torque_all_terms() {
+
 	Eigen::VectorXd joint_cmd_acc = this -> get_joint_cmd_acc();
-	std::cout << "joint cmd acc: " << joint_cmd_acc << std::endl;
 	return this -> get_joint_torque(joint_cmd_acc); 
 }
 
 Eigen::MatrixXd PotentialField::get_P() {
-	std::cout << "M inverse: " << (data -> M).inverse()<< std::endl;
-	pinocchio::computeAllTerms(model, *data, joint_pos, joint_vel) ;
-	pinocchio::getJointJacobian(model, *data, 7, pinocchio::ReferenceFrame::LOCAL_WORLD_ALIGNED, jacobian);
 	return Eigen::MatrixXd::Identity(dim_joints, dim_joints) - jacobian.transpose() * 
 		(jacobian * (data -> M).inverse() * jacobian.transpose()).inverse() * 
 		jacobian * (data -> M).inverse();
@@ -118,31 +125,27 @@ void PotentialField::update() {
 	pinocchio::forwardKinematics(model, *data, joint_pos, joint_vel);
 	pinocchio::SE3 pose_now = data -> oMi[JOINT_ID];
 	task_fbk_pos = pose_now.translation();
-	if (task_fbk_pos == target_pos) {
-		return;
-	}
 
-	std::cout << "Computing all terms" << std::endl;
 	pinocchio::computeAllTerms(model, *data, joint_pos, joint_vel) ;
 	pinocchio::getJointJacobian(model, *data, JOINT_ID, pinocchio::ReferenceFrame::LOCAL_WORLD_ALIGNED, jacobian) ;
 
-	jacobian_dot = Eigen::MatrixXd::Zero(6,dim_joints);
 	pinocchio::computeJointJacobiansTimeVariation(model, *data, joint_pos, joint_vel );
 	pinocchio::getJointJacobianTimeVariation(model, *data, JOINT_ID, pinocchio::ReferenceFrame::LOCAL_WORLD_ALIGNED, jacobian_dot);
 
-	task_ref_dot = K * (target_pos - task_fbk_pos);
+	std::cout << "target_pos\n" << target_pos << std::endl;
+	std::cout << "task_fbk_pos\n" << task_fbk_pos << std::endl;
+	task_ref_dot = k_attr * (target_pos - task_fbk_pos);
+	std::cout << "task_ref_dot\n" << task_ref_dot << std::endl;
 	inverse_dynamics_controller::scale_task_dot(task_ref_dot);
 
-	std::cout << "Got task ref vel" << std::endl;
 	task_ref_pos = task_fbk_pos + task_ref_dot * dt;
 	task_fbk_dot = jacobian.block(0, 0, 3, dim_joints) * joint_vel;
 	task_ref_acc = (1/dt) * (task_ref_dot - task_fbk_dot);
-	std::cout<< "Finished PotentialField update" << std::endl;
 }
 
 void PotentialField::update_joint_refs() {
 	const float dt = 0.005;
-	joint_ref_dot = K_joint * (joint_tar - joint_pos);
+	joint_ref_dot = k_attr * (joint_tar - joint_pos);
 	joint_ref_pos = joint_pos + joint_ref_dot * dt;
 	joint_ref_acc = 1/dt * (joint_ref_dot - joint_vel);
 }
@@ -152,10 +155,7 @@ void PotentialField::update_joints(const sensor_msgs::JointState& joint_state) {
 		joint_pos[i] = joint_state.position[i];
 		joint_vel[i] = joint_state.velocity[i];
 	}
-}
-
-bool PotentialField::not_arrived() {
-	return (task_fbk_pos - target_pos).norm() > .01;
+	std::cout << "joint_vel\n" << joint_vel << std::endl;
 }
 
 } /* namespace */

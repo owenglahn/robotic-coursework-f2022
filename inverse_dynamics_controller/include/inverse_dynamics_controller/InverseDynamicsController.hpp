@@ -38,6 +38,8 @@ class InverseDynamicsController {
 	*/
 	bool readParameters();
 
+	void limit_joint_torque(Eigen::VectorXd& torque);
+
 	/*!
 	* ROS topic callback method.
 	* @param message the received message.
@@ -71,10 +73,16 @@ class InverseDynamicsController {
 	std::string serviceName_;
 
 	//! PotentialField computation object.
-	PotentialField* potentialFieldTask;
-	PotentialField* potentialFieldJoint;
-	double k_scale;
-	double d_scale;
+	PotentialField* potentialField;
+	double k_task;
+	double k_joint;
+	double k_attr;
+	double d_task;
+	double d_joint;
+	double d_attr;
+
+	Eigen::VectorXd joint_torque_limits;
+	Eigen::VectorXd t_total;
 };
 
 } /* namespace */

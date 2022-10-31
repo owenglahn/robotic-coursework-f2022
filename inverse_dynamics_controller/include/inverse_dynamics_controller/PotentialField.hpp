@@ -26,7 +26,8 @@ class PotentialField {
 	/*!
 	* Constructor.
 	*/
-	PotentialField(const std::string urdfFileName, double k_scale, double d_scale);
+	PotentialField(const std::string urdfFileName, double k_attr, double k_task, double k_joint, 
+		double d_attr, double d_task, double d_joint);
 
 	/*!
 	* Destructor.
@@ -51,17 +52,18 @@ class PotentialField {
 	Eigen::VectorXd get_joint_torque(const Eigen::VectorXd& joint_cmd_acc);
 	Eigen::VectorXd get_joint_torque_all_terms();
 	Eigen::MatrixXd get_P();
-	bool not_arrived();
 
 	private:
 	Eigen::VectorXd joint_pos;
 	Eigen::VectorXd joint_vel;
 	Eigen::MatrixXd jacobian;
 	Eigen::MatrixXd jacobian_dot;
-	Eigen::MatrixXd K;
-	Eigen::MatrixXd K_joint;
-	Eigen::MatrixXd D;
-	Eigen::MatrixXd D_joint;
+	double k_attr;
+	double k_task;
+	double k_joint;
+	double d_attr;
+	double d_task;
+	double d_joint;
 	pinocchio::Model model;
 	int dim_joints;
 	Eigen::Vector3d task_ref_pos;
