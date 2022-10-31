@@ -1,0 +1,10 @@
+<launch>
+  <include file="$(find kortex_gazebo)/launch/gen3.launch" >
+      <!-- pass arguments here if you want -->
+  </include>
+  <!-- Launch ROS Package Template Node -->
+  <node pkg="highlevel_controller" type="highlevel_controller" name="highlevel_controller" output="screen">
+    <rosparam command="load" file="$(dirname)/../config/default.yaml" />
+  </node>
+
+</launch>

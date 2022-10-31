@@ -67,6 +67,7 @@ void InverseDynamicsController::update() {
 			 << std::endl;
 		ros::shutdown();
 	}
+	std::cout << "torque\n" << t_total << std::endl;
 	std_msgs::Float64MultiArray toSend;	
 	toSend.data.insert(toSend.data.end(), t_total.data(), t_total.data() + 7);
 	publisher_.publish(toSend);
@@ -78,15 +79,19 @@ void InverseDynamicsController::topicCallback(const sensor_msgs::JointState& joi
 }
 
 void InverseDynamicsController::limit_joint_torque(Eigen::VectorXd& torque) {
-	Eigen::VectorXd ratios = torque;
-	for (int i = 0; i < ratios.rows(); i++) {
-		ratios[i] = std::abs(ratios[i]) / joint_torque_limits[i]; 
-	}
-	double max_ratio = *std::max_element(ratios.data(), ratios.data() + 7);
-	if (max_ratio > 1.0) {
-		for (int i = 0; i < torque.rows(); i++) {
-			torque[i] = torque[i] / max_ratio;
-		}
+	// Eigen::VectorXd ratios = torque;
+	// for (int i = 0; i < ratios.rows(); i++) {
+	// 	ratios[i] = std::abs(ratios[i]) / joint_torque_limits[i]; 
+	// }
+	// double max_ratio = *std::max_element(ratios.data(), ratios.data() + 7);
+	// if (max_ratio > 1.0) {
+	// 	for (int i = 0; i < torque.rows(); i++) {
+	// 		torque[i] = torque[i] / max_ratio;
+	// 	}
+	// }
+	for (int i = 0; i < 7; i ++) {
+		torque[i] = torque[i] / std::abs(torque[i]) * 
+			std::min(std::abs(torque[i]), joint_torque_limits[i]);
 	}
 }
 

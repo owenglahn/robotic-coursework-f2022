@@ -1,10 +1,10 @@
 #include <ros/ros.h>
-#include "ros_package_template/RosPackageTemplate.hpp" 	// include your ROS class
+#include "highlevel_controller/RosPackageTemplate.hpp" 	// include your ROS class
 
 int main(int argc, char** argv) {
 
 	// Initialize ROS
-	ros::init(argc, argv, "ros_package_template");
+	ros::init(argc, argv, "highlevel_controller");
 
 	// Add a node handle
 	ros::NodeHandle nodeHandle("~");
@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 	ros::Rate loopRate(1000) ;
 
 	// Make an instance of your ROS package
-	ros_package_template::RosPackageTemplate rosPackageTemplate(nodeHandle);
+	highlevel_controller::RosPackageTemplate rosPackageTemplate(nodeHandle);
 
 
 	while ( ros::ok() ) {

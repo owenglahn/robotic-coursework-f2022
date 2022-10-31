@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(ros_package_template)
+project(highlevel_controller)
 
 ## Use C++14
 set(CMAKE_CXX_STANDARD 14)
@@ -73,7 +73,7 @@ target_compile_features(${PROJECT_NAME}_core INTERFACE cxx_std_11)
 ## Declare cpp executables
 add_executable(${PROJECT_NAME}
   src/${PROJECT_NAME}_node.cpp
-  src/RosPackageTemplate.cpp
+  src/HighLevelController.cpp
 )
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
 

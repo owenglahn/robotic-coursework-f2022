@@ -1,7 +1,7 @@
-#include "ros_package_template/Algorithm.hpp"
+#include "highlevel_controller/Algorithm.hpp"
 
 
-namespace ros_package_template {
+namespace highlevel_controller {
 
 Algorithm::Algorithm() {
 

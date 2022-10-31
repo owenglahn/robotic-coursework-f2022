@@ -1,6 +1,6 @@
-#include "ros_package_template/RosPackageTemplate.hpp"
+#include "highlevel_controller/RosPackageTemplate.hpp"
 
-namespace ros_package_template {
+namespace highlevel_controller {
 
 RosPackageTemplate::RosPackageTemplate(ros::NodeHandle& nodeHandle) : nodeHandle_(nodeHandle) {
 	if ( !readParameters() ) {

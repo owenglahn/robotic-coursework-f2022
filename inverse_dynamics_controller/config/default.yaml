@@ -3,9 +3,9 @@ urdf_file: /home/oglahn/comp514/asgn4/src/robotic-coursework-f2022/inverse_dynam
 advertiser_service: /planner/move_to
 publisher_topic: /gen3/joint_group_effort_controller/command
 dt: 0.005
-k_joint: 20
-k_attr: 20
-k_task: 20
-d_task: 20
-d_attr: 20
-d_joint: 20
+k_joint: 20 
+k_attr: 20 
+k_task: 10
+d_task: 10
+d_attr: 10
+d_joint: 10

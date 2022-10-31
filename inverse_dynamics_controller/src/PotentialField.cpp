@@ -91,10 +91,6 @@ Eigen::VectorXd PotentialField::get_task_torque_all_terms() {
 	Eigen::MatrixXd alpha = this -> get_alpha();
 	Eigen::Vector3d n = this -> get_n(alpha);
 	Eigen::Vector3d F = this -> get_F_cmd(alpha, task_cmd_acc, n);
-	std::cout << "task_cmd_acc\n" << task_cmd_acc << std::endl;
-	std::cout << "alpha\n" << alpha << std::endl;
-	std::cout << "n\n" << n << std::endl;
-	std::cout << "F\n" << F << std::endl;
 	return get_task_torque(F);
 }
 
@@ -132,7 +128,6 @@ void PotentialField::update() {
 	pinocchio::computeJointJacobiansTimeVariation(model, *data, joint_pos, joint_vel );
 	pinocchio::getJointJacobianTimeVariation(model, *data, JOINT_ID, pinocchio::ReferenceFrame::LOCAL_WORLD_ALIGNED, jacobian_dot);
 
-	std::cout << "target_pos\n" << target_pos << std::endl;
 	std::cout << "task_fbk_pos\n" << task_fbk_pos << std::endl;
 	task_ref_dot = k_attr * (target_pos - task_fbk_pos);
 	std::cout << "task_ref_dot\n" << task_ref_dot << std::endl;

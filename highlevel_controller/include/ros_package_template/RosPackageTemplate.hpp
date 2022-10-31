@@ -5,10 +5,10 @@
 #include <std_srvs/Trigger.h>
 #include <string>
 
-#include "ros_package_template/Algorithm.hpp"
+#include "highlevel_controller/Algorithm.hpp"
 
 
-namespace ros_package_template {
+namespace highlevel_controller {
 
 /*!
  * The ROS wrapper for Algorithm
