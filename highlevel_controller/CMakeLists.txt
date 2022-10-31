@@ -67,6 +67,7 @@ include_directories(
 ## Declare a cpp library
 add_library(${PROJECT_NAME}_core
    src/Algorithm.cpp
+   src/PotentialField.cpp
 )
 target_compile_features(${PROJECT_NAME}_core INTERFACE cxx_std_11)
 

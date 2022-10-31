@@ -13,19 +13,19 @@ namespace highlevel_controller {
 /*!
  * The ROS wrapper for Algorithm
  */
-class RosPackageTemplate {
+class HighLevelController {
 
 	public:
 	/*!
 	* Constructor.
 	* @param nodeHandle the ROS node handle.
 	*/
-	RosPackageTemplate(ros::NodeHandle& nodeHandle);
+	HighLevelController(ros::NodeHandle& nodeHandle);
 
   	/*!
   	 * Destructor.
   	 */
-	virtual ~RosPackageTemplate();
+	virtual ~HighLevelController();
 
 	/*
 	 * A function handling necessary actions in every loop
@@ -66,7 +66,7 @@ class RosPackageTemplate {
 	ros::ServiceServer serviceServer_;
 
 	//! Algorithm computation object.
-	Algorithm algorithm_;
+	PotentialField potentialField_;
 };
 
 } /* namespace */

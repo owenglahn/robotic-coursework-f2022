@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include "highlevel_controller/RosPackageTemplate.hpp" 	// include your ROS class
+#include "highlevel_controller/HighLevelController.hpp" 	// include your ROS class
 
 int main(int argc, char** argv) {
 
@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
 	ros::Rate loopRate(1000) ;
 
 	// Make an instance of your ROS package
-	highlevel_controller::RosPackageTemplate rosPackageTemplate(nodeHandle);
+	highlevel_controller::HighLevelController HighLevelController(nodeHandle);
 
 
 	while ( ros::ok() ) {
@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 		ros::spinOnce() ;
 
 		// call the update function
-		rosPackageTemplate.update() ;
+		HighLevelController.update() ;
 
 		// sleep for any time remaining to the publish rate
 		loopRate.sleep() ;
