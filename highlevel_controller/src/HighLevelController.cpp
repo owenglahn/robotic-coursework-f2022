@@ -31,9 +31,9 @@ void RosPackageTemplate::update() {
 	algorithm_.update() ;
 }
 
-void RosPackageTemplate::topicCallback(const sensor_msgs::Temperature& message) {
+void RosPackageTemplate::topicCallback(const sensor_msgs::JointState& message) {
 	// do something here
-
+	potentialField_.update_joints();
 }
 
 bool RosPackageTemplate::serviceCallback(std_srvs::Trigger::Request& request, std_srvs::Trigger::Response& response) {

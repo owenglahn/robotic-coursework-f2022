@@ -134,7 +134,8 @@ void PotentialField::update() {
 	inverse_dynamics_controller::scale_task_dot(task_ref_dot);
 
 	task_ref_pos = task_fbk_pos + task_ref_dot * dt;
-	task_fbk_dot = jacobian.block(0, 0, 3, dim_joints) * joint_vel;
+	// task_fbk_dot = jacobian.block(0, 0, 3, dim_joints) * joint_vel;
+	task_fbk_dot = jacobian_dot.block<3, 1>(0, 6);
 	task_ref_acc = (1/dt) * (task_ref_dot - task_fbk_dot);
 }
 
