@@ -9,12 +9,11 @@
 
   <!-- buildtool_depend: dependencies of the build process -->
   <buildtool_depend>catkin</buildtool_depend>
-  <!-- build_depend: dependencies only used in source files -->
-  <build_depend>boost</build_depend>
   <!-- depend: build, export, and execution dependency -->
-  <depend>eigen</depend>
+  <depend>pinocchio</depend>
+  <depend>Eigen3</depend>
   <depend>roscpp</depend>
+  <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
 
-  <build_depend>rosglahnt</build_depend>
 </package>

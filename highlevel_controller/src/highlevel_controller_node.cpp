@@ -1,5 +1,5 @@
+#include "highlevel_controller/CubicPolyController.hpp" 	// include your ROS class
 #include <ros/ros.h>
-#include "highlevel_controller/HighLevelController.hpp" 	// include your ROS class
 
 int main(int argc, char** argv) {
 
@@ -10,10 +10,10 @@ int main(int argc, char** argv) {
 	ros::NodeHandle nodeHandle("~");
 
 	// specify the frequency to 10HZ
-	ros::Rate loopRate(1000) ;
+	ros::Rate loopRate(10) ;
 
 	// Make an instance of your ROS package
-	highlevel_controller::HighLevelController HighLevelController(nodeHandle);
+	highlevel_controller::CubicPolyController HighLevelController(nodeHandle);
 
 
 	while ( ros::ok() ) {
@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 		ros::spinOnce() ;
 
 		// call the update function
-		HighLevelController.update() ;
+		HighLevelController.update_function() ;
 
 		// sleep for any time remaining to the publish rate
 		loopRate.sleep() ;
