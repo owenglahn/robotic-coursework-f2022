@@ -14,13 +14,12 @@ find_package(catkin REQUIRED
   COMPONENTS
     roscpp
     sensor_msgs
-    std_msgs
+    roslint
 )
 
 ## Find system libraries
 find_package(Eigen3 REQUIRED)
 find_package(pinocchio REQUIRED)
-add_definitions("-DBOOST_MPL_LIMIT_LIST_SIZE=30")
 
 ###################################
 ## catkin specific configuration ##
@@ -35,15 +34,14 @@ catkin_package(
   INCLUDE_DIRS
     include
     ## This is only necessary because Eigen3 sets a non-standard EIGEN3_INCLUDE_DIR variable
-    ${EIGEN3_INCLUDE_DIR}
+    ${Eigen3_INCLUDE_DIRS}
     ${PINOCCHIO_INCLUDE_DIRS}
   LIBRARIES
     pinocchio
-    ${PROJECT_NAME}
+    ${PROJECT_NAME}_core
   CATKIN_DEPENDS
     roscpp
     sensor_msgs
-    std_msgs
   DEPENDS
   ## find_package(Eigen3) provides a non standard EIGEN3_INCLUDE_DIR instead of Eigen3_INCLUDE_DIRS.
   ## Therefore, the DEPEND does not work as expected and we need to add the directory to the INCLUDE_DIRS
@@ -62,9 +60,53 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${PINOCCHIO_INCLUDE_DIRS}
   # Set manually because Eigen sets a non standard INCLUDE DIR
-  ${EIGEN3_INCLUDE_DIR}
+  ${EIGEN3_INCLUDE_DIRS}
+  ${PINOCCHIO_INCLUDE_DIRS}
+)
+
+## Declare a cpp library
+add_library(${PROJECT_NAME}_core
+   src/cubic_poly_planner.cpp
+)
+target_compile_features(${PROJECT_NAME}_core INTERFACE cxx_std_11)
+
+## Declare cpp executables
+add_executable(${PROJECT_NAME}
+  src/${PROJECT_NAME}_node.cpp
+  src/CubicPolyController.cpp
+)
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_11)
+
+## Add dependencies to exported targets, like ROS msgs or srvs
+add_dependencies(${PROJECT_NAME}_core
+  ${catkin_EXPORTED_TARGETS}
+)
+
+add_dependencies(${PROJECT_NAME}
+  ${catkin_EXPORTED_TARGETS}
+)
+
+## Specify libraries to link executable targets against
+target_link_libraries(${PROJECT_NAME}_core
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(${PROJECT_NAME}
+  ${PROJECT_NAME}_core
+  ${catkin_LIBRARIES}
+)
+
+#############
+## Install ##
+#############
+
+# Mark executables and/or libraries for installation
+install(
+  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_core
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 # Mark cpp header files for installation
@@ -74,35 +116,8 @@ install(
   FILES_MATCHING PATTERN "*.hpp"
 )
 
-## Declare a cpp library
-add_library(${PROJECT_NAME}_core
-   src/cubic_poly_planner.cpp
+# Mark other files for installation
+install(
+  DIRECTORY doc
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
-target_compile_features(${PROJECT_NAME}_core INTERFACE cxx_std_11)
-
-## Add dependencies to exported targets, like ROS msgs or srvs
-add_dependencies(${PROJECT_NAME}_core
-  ${catkin_EXPORTED_TARGETS}
-)
-
-## Specify libraries to link executable targets against
-target_link_libraries(${PROJECT_NAME}_core
-  ${catkin_LIBRARIES}
-)
-
-## Declare cpp executables
-add_executable(${PROJECT_NAME}_node
-  src/${PROJECT_NAME}_node.cpp
-  src/CubicPolyController.cpp
-)
-# target_compile_features(${PROJECT_NAME}_node INTERFACE cxx_std_11)
-
-target_link_libraries(${PROJECT_NAME}_node
-  ${PROJECT_NAME}_core
-  ${catkin_LIBRARIES}
-  ${PINOCCHIO_LIBRARIES}
-)
-
-# add_dependencies(${PROJECT_NAME}_node
-#   ${catkin_LIBRARIES}
-# )
