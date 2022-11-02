@@ -90,6 +90,7 @@ add_dependencies(${PROJECT_NAME}
 ## Specify libraries to link executable targets against
 target_link_libraries(${PROJECT_NAME}_core
   ${catkin_LIBRARIES}
+  ${PINOCCHIO_LIBRARIES}
 )
 
 target_link_libraries(${PROJECT_NAME}

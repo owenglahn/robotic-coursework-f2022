@@ -45,7 +45,7 @@ private:
     Eigen::MatrixXd jacobian;
     Eigen::MatrixXd pseudo_inv_jacobian;
     bool start;
-    Eigen::Vector3d effector_start;
+    Eigen::VectorXd effector_start;
     int dim_joints; 
     std::string urdf_file_name;
 };

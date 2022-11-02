@@ -5,6 +5,6 @@
 #include <ros/ros.h>
 
 namespace highlevel_controller {
-Eigen::Vector3d get_position(ros::Duration t, ros::Duration target_time,
-	Eigen::Vector3d start_pos, Eigen::Vector3d target_pos);
+Eigen::VectorXd get_position(ros::Duration t, ros::Duration target_time,
+	Eigen::VectorXd start_pos, Eigen::VectorXd target_pos);
 }

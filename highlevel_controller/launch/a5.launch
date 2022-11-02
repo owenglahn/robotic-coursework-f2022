@@ -3,7 +3,8 @@
       <!-- pass arguments here if you want -->
   </include>
   <!-- Launch ROS Package Template Node -->
-  <node pkg="highlevel_controller" type="highlevel_controller" name="highlevel_controller" output="screen">
+  <node pkg="highlevel_controller" type="highlevel_controller" name="highlevel_controller" 
+    output="screen">
     <rosparam command="load" file="$(dirname)/../config/default-target.yaml" />
   </node>
 
