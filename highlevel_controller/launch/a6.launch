@@ -1,0 +1,5 @@
+<launch>
+    <include file="$(find kortex_gazebo)/launch/gen3.launch">
+            <arg name="world_name" value="worlds/a6.world"/>
+    </include>
+</launch>
