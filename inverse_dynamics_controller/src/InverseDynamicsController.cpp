@@ -90,8 +90,10 @@ void InverseDynamicsController::limit_joint_torque(Eigen::VectorXd& torque) {
 	// 	}
 	// }
 	for (int i = 0; i < 7; i ++) {
-		torque[i] = torque[i] / std::abs(torque[i]) * 
-			std::min(std::abs(torque[i]), joint_torque_limits[i]);
+		if (torque[i] != 0) {
+			torque[i] = torque[i] / std::abs(torque[i]) * 
+				std::min(std::abs(torque[i]), joint_torque_limits[i]);
+		}
 	}
 }
 
