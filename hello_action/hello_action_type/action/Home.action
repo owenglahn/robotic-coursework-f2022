@@ -1,0 +1,13 @@
+# define the goal
+bool home 			# true: go to home configuration
+
+---
+
+# define the result
+bool success 		# true: action done. false: action failed
+string message 		# a message that can be displayed
+
+---
+
+# define a feedback message
+float64 distance 	# distance to the targe

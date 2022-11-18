@@ -1,0 +1,6 @@
+<launch>
+
+	<node name="server" pkg="hello_action_server" type="hello_action_server" output="screen"/>
+	<node name="client" pkg="hello_action_client" type="hello_action_client" output="screen"/>
+	
+</launch>

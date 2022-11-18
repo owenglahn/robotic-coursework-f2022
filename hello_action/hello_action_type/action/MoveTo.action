@@ -1,0 +1,15 @@
+# define the goal
+float64 x			# target x position
+float64 y			# target y position
+float64 z			# target z position
+
+---
+
+# define the result
+bool success 		# true: action done. false: action failed
+string message 		# a message that can be displayed
+
+---
+
+# define a feedback message
+float64 distance 	# distance to the targe
