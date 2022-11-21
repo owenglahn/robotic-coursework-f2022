@@ -1,1 +1,0 @@
-A ROS package template modified from https://github.com/leggedrobotics/ros_best_practices/tree/main/ros_package_template

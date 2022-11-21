@@ -5,16 +5,22 @@ CubicPolyController::CubicPolyController(ros::NodeHandle nodeHandle) {
     node_handle = nodeHandle;
     start = true;
     task_ref = Eigen::VectorXd::Zero(6);
-    target_pos = Eigen::VectorXd::Zero(6);
+    for (int i = 0; i < 3; i++) {
+        target_objs.push_back(Eigen::VectorXd::Zero(6));
+    }
     T = ros::Duration(1);
     if (!readParams()) {
         ROS_ERROR("Unable to read params.");
         ros::requestShutdown();
     }
+    std::cout << "Read params" << std::endl;
+    this -> target_pos = &(target_objs.front());
     this -> subscriber = node_handle.subscribe<sensor_msgs::JointState>(subName_, 2, 
         &CubicPolyController::update_joint_position, this);
     this -> publisher = node_handle.advertise<std_msgs::Float64MultiArray>(pubName_, 2);
+    std::cout << "Building model" << std::endl;
     pinocchio::urdf::buildModel(urdf_file_name, model, false);
+    std::cout << "Built model" << std::endl;
     data = pinocchio::Data(model);
 
     dim_joints = model.nq;
@@ -31,14 +37,18 @@ CubicPolyController::CubicPolyController(ros::NodeHandle nodeHandle) {
 
 bool CubicPolyController::readParams() {
     std::vector<double> paramOrientation;
-    std::vector<double> target;
+    std::vector<double> target1;
+    std::vector<double> target2;
+    std::vector<double> target3;
     int tar_time; 
     if (!node_handle.getParam("orientation", paramOrientation) ||
-        !node_handle.getParam("target", target) || 
         !node_handle.getParam("sub_topic", subName_) || 
         !node_handle.getParam("pub_topic", pubName_) || 
-        !node_handle.getParam("target_time", tar_time) || 
-        !node_handle.getParam("/gen3/urdf_file_name", urdf_file_name)) {
+        !node_handle.getParam("target1", target1) || 
+        !node_handle.getParam("target2", target2) ||
+        !node_handle.getParam("target3", target3) || 
+        !node_handle.getParam("urdf_file_name", urdf_file_name) ||
+        !node_handle.getParam("target_time", tar_time)) { 
         return false;
     }
     int i = 0;
@@ -46,8 +56,16 @@ bool CubicPolyController::readParams() {
         task_ref[3+i++] = el;
     }
     i=0;
-    for (double el: target) {
-        target_pos[i++] = el;
+    for (double el: target1) {
+        target_objs[0][i++] = el;
+    }
+    i=0;
+    for (double el: target2) {
+        target_objs[1][i++] = el;
+    }
+    i=0;
+    for (double el: target3) {
+        target_objs[2][i++] = el;
     }
     T = ros::Duration(tar_time);
     return true;
@@ -84,7 +102,13 @@ void CubicPolyController::update_joint_position(sensor_msgs::JointState joint_st
 void CubicPolyController::update_function() {
     t = ros::Time::now() - start_time;
     if (t.toSec() <= T.toSec()) {
-        task_ref = get_position(t, T, effector_start, target_pos);
+        std::cout << "Target pos:\n" << *target_pos << std::endl;
+        task_ref = get_position(t, T, effector_start, *target_pos);
+    } else if (target_pos != &target_objs.back()) {
+        target_pos++;
+        t = ros::Duration(0);
+        start_time = ros::Time::now();
+        start = true;
     }
     task_ref_dot = (task_ref - task_fbk) / .01;
     std::cout << "effector_start\n" << effector_start << std::endl;
@@ -102,5 +126,9 @@ void CubicPolyController::update_function() {
     new_joint_pos.data.insert(new_joint_pos.data.end(), joint_ref.data(), joint_ref.data()
         + dim_joints);
     publisher.publish(new_joint_pos);
+}
+
+CubicPolyController::~CubicPolyController() {
+    
 }
 }

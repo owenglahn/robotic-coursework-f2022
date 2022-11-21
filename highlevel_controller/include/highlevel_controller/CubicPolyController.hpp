@@ -18,6 +18,7 @@ namespace highlevel_controller {
 class CubicPolyController {
 public:
     CubicPolyController(ros::NodeHandle nodeHandle);
+    ~CubicPolyController();
     bool readParams();
 
     // call back for joint state
@@ -35,7 +36,7 @@ private:
     pinocchio::Data data;
     Eigen::VectorXd joint_pos;
     Eigen::VectorXd joint_vel;
-    Eigen::VectorXd target_pos;
+    Eigen::VectorXd* target_pos = nullptr;
     Eigen::VectorXd task_ref;
     Eigen::VectorXd task_ref_dot;
     Eigen::VectorXd task_fbk;
@@ -48,5 +49,8 @@ private:
     Eigen::VectorXd effector_start;
     int dim_joints; 
     std::string urdf_file_name;
+    std::vector<Eigen::VectorXd> target_objs;
 };
+
+
 }

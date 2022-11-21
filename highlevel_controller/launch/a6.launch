@@ -1,5 +1,10 @@
 <launch>
     <include file="$(find kortex_gazebo)/launch/gen3.launch">
-            <arg name="world_name" value="worlds/a6.world"/>
+            <!-- <arg name="world_name" value="worlds/a6.world"/> -->
     </include>
+    <node pkg="highlevel_controller" type="highlevel_controller" name="highlevel_controller" 
+        output="screen">
+        <rosparam command="load" file="$(dirname)/../config/a6.yaml" />
+        <param name="urdf_file_name" value="$(find kortex_description)/urdf/gen3.urdf"/>
+    </node>
 </launch>
