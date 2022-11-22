@@ -1,6 +1,6 @@
-target1: [0.5, 0.5, 0.5]
-target2: [0.4, -0.4, 0.4] 
-target3: [-0.5, 0.5, 0.3]
+target1: [0.181459, 0.518829, 0.3]
+target2: [0.629902, -0.023320, 0.3] 
+target3: [0.484054, -0.484017, 0.3]
 target_time: 5
 orientation: [0.0, 0.0, 0.0]
 sub_topic: /gen3/joint_states

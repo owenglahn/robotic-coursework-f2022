@@ -15,6 +15,8 @@ CubicPolyController::CubicPolyController(ros::NodeHandle nodeHandle) {
     }
     std::cout << "Read params" << std::endl;
     this -> target_pos = &(target_objs.front());
+    this -> start_time = ros::Time::now();
+    std::cout << "Target pos at init:\n" << *target_pos << std::endl;
     this -> subscriber = node_handle.subscribe<sensor_msgs::JointState>(subName_, 2, 
         &CubicPolyController::update_joint_position, this);
     this -> publisher = node_handle.advertise<std_msgs::Float64MultiArray>(pubName_, 2);
@@ -85,6 +87,7 @@ void CubicPolyController::update_joint_position(sensor_msgs::JointState joint_st
     task_fbk.tail<3>() = pinocchio::rpy::matrixToRpy(data.oMi[JOINT_ID].rotation()); 
     std::cout << "task_fbk\n" << task_fbk << std::endl;
     if (start) {
+        start_time = ros::Time::now();
         pinocchio::SE3 pose_now = data.oMi[JOINT_ID];
         effector_start.head<3>() = pose_now.translation();
         std::cout << "effector_start\n" << effector_start << std::endl;
@@ -101,7 +104,7 @@ void CubicPolyController::update_joint_position(sensor_msgs::JointState joint_st
 
 void CubicPolyController::update_function() {
     t = ros::Time::now() - start_time;
-    if (t.toSec() <= T.toSec()) {
+    if (t.toSec() <= T.toSec() || start) {
         std::cout << "Target pos:\n" << *target_pos << std::endl;
         task_ref = get_position(t, T, effector_start, *target_pos);
     } else if (target_pos != &target_objs.back()) {
@@ -109,6 +112,7 @@ void CubicPolyController::update_function() {
         t = ros::Duration(0);
         start_time = ros::Time::now();
         start = true;
+        std::cout << "TARGET POS UPDATED" << std::endl;
     }
     task_ref_dot = (task_ref - task_fbk) / .01;
     std::cout << "effector_start\n" << effector_start << std::endl;

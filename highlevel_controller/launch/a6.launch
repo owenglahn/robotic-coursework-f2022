@@ -1,6 +1,6 @@
 <launch>
     <include file="$(find kortex_gazebo)/launch/gen3.launch">
-            <!-- <arg name="world_name" value="worlds/a6.world"/> -->
+            <arg name="world_name" value="$(find highlevel_controller)/worlds/a6.world"/>
     </include>
     <node pkg="highlevel_controller" type="highlevel_controller" name="highlevel_controller" 
         output="screen">
