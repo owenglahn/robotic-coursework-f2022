@@ -122,13 +122,14 @@ void CubicPolyController::update_function() {
                 squeeze.command.position = 0.0;
                 actionClient -> sendGoal(squeeze);
                 actionClient -> waitForResult(ros::Duration(5.0));
-                target_pos++;
+                effector_start = *target_pos;
                 start_time = ros::Time::now();
                 t = ros::Duration(0);
+                target_pos++;
             } else {
                 state = ArmState::PRE_GRASP;
                 squeeze.command.max_effort = 1.0;
-                squeeze.command.position = 0.6;
+                squeeze.command.position = 0.65;
                 actionClient -> sendGoal(squeeze);
                 actionClient -> waitForResult(ros::Duration(5.0));
             }
@@ -139,9 +140,16 @@ void CubicPolyController::update_function() {
             state = ArmState::GRASP;
             start_time = ros::Time::now();
             t = ros::Duration(0);
-            target_pos++;
         }
     } else if (state == ArmState::GRASP) {
+        if (t.toSec() >= 2) {
+            state = ArmState::SECOND_MOVE;
+            effector_start = *target_pos;
+            t = ros::Duration(0);
+            start_time = ros::Time::now();
+            target_pos++;
+        }
+    } else if (state == ArmState::SECOND_MOVE) {
         if (t.toSec() <= T.toSec()) {
             task_ref = get_position(t, T, effector_start, *target_pos);
         } else {

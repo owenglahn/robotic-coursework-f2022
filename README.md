@@ -9,3 +9,8 @@ How to run: roslaunch highlevel_controller a6.launch
 Target positions: Located in a6.yaml
 
 Limitations: As mentioned before, no objects. 
+
+Opening position: 0.0
+Closing position: 0.7
+Targets: I use a set of via points to set pre-grasp, grasp and release positions.
+Result: It seems to work all the time. 

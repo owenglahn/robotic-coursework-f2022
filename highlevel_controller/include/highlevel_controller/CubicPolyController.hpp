@@ -19,7 +19,7 @@
 namespace highlevel_controller {
 
 enum ArmState {
-    MOVING, PRE_GRASP, GRASP, RELEASE
+    MOVING, PRE_GRASP, GRASP, SECOND_MOVE, RELEASE
 };
 
 class CubicPolyController {
