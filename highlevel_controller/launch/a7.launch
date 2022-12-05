@@ -1,0 +1,9 @@
+<launch>
+    <include file="$(find kortex_gazebo)/launch/gen3_kin_with_gripper.launch">
+    </include>
+    <node pkg="highlevel_controller" type="highlevel_controller" name="highlevel_controller" 
+        output="screen">
+        <rosparam command="load" file="$(dirname)/../config/a7.yaml" />
+        <param name="urdf_file_name" value="$(find kortex_description)/urdf/gen3.urdf"/>
+    </node>
+</launch>

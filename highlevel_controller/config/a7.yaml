@@ -1,0 +1,9 @@
+# target1: [0.0, 0.6, 0.05]
+target1: [0.0, 0.6, 0.5]
+target2: [0.0, 0.6, 0.3] 
+target3: [0.5, 0.3, 0.5] 
+target_time: 5
+orientation: [0.0, 0.0, 0.0]
+sub_topic: /gen3/joint_states
+pub_topic: /gen3/joint_group_position_controller/command
+action: /gen3/finger_group_action_controller/gripper_cmd

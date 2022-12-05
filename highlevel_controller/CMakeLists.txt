@@ -7,13 +7,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## By adding -Wall and -Werror, the compiler does not ignore warnings anymore,
 ## enforcing cleaner code.
-add_definitions(-Wall -Werror)
+# add_definitions(-Wall -Werror)
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED
   COMPONENTS
     roscpp
     sensor_msgs
+    actionlib
+    control_msgs
     roslint
 )
 
@@ -41,6 +43,8 @@ catkin_package(
     ${PROJECT_NAME}_core
   CATKIN_DEPENDS
     roscpp
+    actionlib
+    control_msgs
     sensor_msgs
   DEPENDS
   ## find_package(Eigen3) provides a non standard EIGEN3_INCLUDE_DIR instead of Eigen3_INCLUDE_DIRS.

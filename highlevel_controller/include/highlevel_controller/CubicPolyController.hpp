@@ -10,10 +10,17 @@
 #include <sensor_msgs/JointState.h>
 #include <std_msgs/Float64MultiArray.h>
 #include <eigen3/Eigen/Dense>
+#include <control_msgs/GripperCommandAction.h>
+#include <control_msgs/GripperCommandGoal.h>
 #include <iostream>
+#include <actionlib/client/simple_action_client.h>
 #include <ros/ros.h>
 
 namespace highlevel_controller {
+
+enum ArmState {
+    MOVING, PRE_GRASP, GRASP, RELEASE
+};
 
 class CubicPolyController {
 public:
@@ -50,6 +57,9 @@ private:
     int dim_joints; 
     std::string urdf_file_name;
     std::vector<Eigen::VectorXd> target_objs;
+    ArmState state;
+    actionlib::SimpleActionClient<control_msgs::GripperCommandAction>* actionClient;
+    std::string actionName;
 };
 
 

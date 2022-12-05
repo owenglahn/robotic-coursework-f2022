@@ -4,6 +4,7 @@ namespace highlevel_controller {
 CubicPolyController::CubicPolyController(ros::NodeHandle nodeHandle) {
     node_handle = nodeHandle;
     start = true;
+    state = ArmState::MOVING;
     task_ref = Eigen::VectorXd::Zero(6);
     for (int i = 0; i < 3; i++) {
         target_objs.push_back(Eigen::VectorXd::Zero(6));
@@ -13,6 +14,7 @@ CubicPolyController::CubicPolyController(ros::NodeHandle nodeHandle) {
         ROS_ERROR("Unable to read params.");
         ros::requestShutdown();
     }
+    std::cout << "Action server: " << actionName << std::endl;
     std::cout << "Read params" << std::endl;
     this -> target_pos = &(target_objs.front());
     this -> start_time = ros::Time::now();
@@ -20,6 +22,8 @@ CubicPolyController::CubicPolyController(ros::NodeHandle nodeHandle) {
     this -> subscriber = node_handle.subscribe<sensor_msgs::JointState>(subName_, 2, 
         &CubicPolyController::update_joint_position, this);
     this -> publisher = node_handle.advertise<std_msgs::Float64MultiArray>(pubName_, 2);
+    this -> actionClient = new actionlib::SimpleActionClient<control_msgs::GripperCommandAction>
+        (actionName, true);
     std::cout << "Building model" << std::endl;
     pinocchio::urdf::buildModel(urdf_file_name, model, false);
     std::cout << "Built model" << std::endl;
@@ -34,6 +38,7 @@ CubicPolyController::CubicPolyController(ros::NodeHandle nodeHandle) {
     task_ref_dot = Eigen::VectorXd::Zero(6);
     task_fbk = Eigen::VectorXd::Zero(6);
     t = ros::Duration(0);
+    this -> actionClient -> waitForServer();
     std::cout << "Finished init" << std::endl;
 }
 
@@ -50,6 +55,7 @@ bool CubicPolyController::readParams() {
         !node_handle.getParam("target2", target2) ||
         !node_handle.getParam("target3", target3) || 
         !node_handle.getParam("urdf_file_name", urdf_file_name) ||
+        !node_handle.getParam("action", actionName) ||
         !node_handle.getParam("target_time", tar_time)) { 
         return false;
     }
@@ -104,16 +110,50 @@ void CubicPolyController::update_joint_position(sensor_msgs::JointState joint_st
 
 void CubicPolyController::update_function() {
     t = ros::Time::now() - start_time;
-    if (t.toSec() <= T.toSec() || start) {
-        std::cout << "Target pos:\n" << *target_pos << std::endl;
-        task_ref = get_position(t, T, effector_start, *target_pos);
-    } else if (target_pos != &target_objs.back()) {
-        target_pos++;
-        t = ros::Duration(0);
-        start_time = ros::Time::now();
-        start = true;
-        std::cout << "TARGET POS UPDATED" << std::endl;
+    std::cout << "Arm state: " << this -> state << std::endl;
+    if (state == ArmState::MOVING ) {
+        if  (t.toSec() <= T.toSec() || start) {
+            std::cout << "Target pos:\n" << *target_pos << std::endl;
+            task_ref = get_position(t, T, effector_start, *target_pos);
+        } else {
+            control_msgs::GripperCommandGoal squeeze;
+            if (target_pos == &(target_objs[0])){
+                squeeze.command.max_effort = 1.0;
+                squeeze.command.position = 0.0;
+                actionClient -> sendGoal(squeeze);
+                actionClient -> waitForResult(ros::Duration(5.0));
+                target_pos++;
+                start_time = ros::Time::now();
+                t = ros::Duration(0);
+            } else {
+                state = ArmState::PRE_GRASP;
+                squeeze.command.max_effort = 1.0;
+                squeeze.command.position = 0.6;
+                actionClient -> sendGoal(squeeze);
+                actionClient -> waitForResult(ros::Duration(5.0));
+            }
+        }
+    } else if (state == ArmState::PRE_GRASP) {
+        if ((actionClient -> getState()) == actionlib::SimpleClientGoalState::SUCCEEDED) {
+            std::cout << "ACTION SUCCEEDED" << std::endl;
+            state = ArmState::GRASP;
+            start_time = ros::Time::now();
+            t = ros::Duration(0);
+            target_pos++;
+        }
+    } else if (state == ArmState::GRASP) {
+        if (t.toSec() <= T.toSec()) {
+            task_ref = get_position(t, T, effector_start, *target_pos);
+        } else {
+            state = ArmState::RELEASE;
+            control_msgs::GripperCommandGoal squeeze;
+            squeeze.command.max_effort = 1.0;
+            squeeze.command.position = 0.0;
+            actionClient -> sendGoal(squeeze);
+            actionClient -> waitForResult(ros::Duration(5.0));
+        }
     }
+
     task_ref_dot = (task_ref - task_fbk) / .01;
     std::cout << "effector_start\n" << effector_start << std::endl;
     std::cout << "target_pos\n" << target_pos << std::endl;
@@ -133,6 +173,6 @@ void CubicPolyController::update_function() {
 }
 
 CubicPolyController::~CubicPolyController() {
-    
+    delete this -> actionClient;
 }
 }
