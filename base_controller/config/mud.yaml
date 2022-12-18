@@ -1,0 +1,25 @@
+model_name: husky
+cmd_topic_name: /husky_velocity_controller/cmd_vel
+
+initial:
+  x: 0.0
+  y: 5.0
+  phi: 0.0
+   
+target:
+  x: 0.0
+  y: -5.0  
+  phi: 1.0
+
+########################## YOU CAN CHANGE ANY PARAM BELOW ####################
+###  you can modify the values below
+###  you can also define maximum acceleration/deceleration, etc 
+
+update_frequency: 500
+min_distance_to_obstacles: 2.0
+sensor_topic_name: /front/scan
+fbk_topic_name: /gazebo/model_states
+
+limit:
+  speed: 1.0 
+  omega: 1.0  

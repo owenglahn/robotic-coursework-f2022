@@ -1,0 +1,16 @@
+model_name: husky
+update_frequency: 50 
+
+fbk_topic_name: /gazebo/model_states
+cmd_topic_name: /husky_velocity_controller/cmd_vel
+sensor_topic_name: /front/scan
+min_distance_to_obstacles: 2.0
+ 
+target:
+  x: 10.0
+  y: -5.0  
+  phi: -1.0
+
+limit:
+  speed: 1.0 
+  omega: 1.0
