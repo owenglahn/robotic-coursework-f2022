@@ -6,6 +6,7 @@ BaseController::BaseController(ros::NodeHandle nodeHandle) {
     std::cout << "Calling constructor" << std::endl;
     this -> state = State::START;
     this -> node_handle = nodeHandle;
+    this -> started = false;
     if (!readParams()) {
         ROS_ERROR("Unable to read params.");
         ros::requestShutdown();
@@ -19,6 +20,8 @@ BaseController::BaseController(ros::NodeHandle nodeHandle) {
     this -> fbkPos = this -> initial;
     this -> laserScan.ranges.insert(this -> laserScan.ranges.end(), 720, 
         std::numeric_limits<double>::max());
+    this -> server = node_handle.advertiseService("/base_controller/start", 
+        &BaseController::serviceCallBack, this);
 }
 BaseController::~BaseController() {
 }
@@ -65,6 +68,11 @@ void BaseController::updateFbk(const gazebo_msgs::ModelStates modelStates) {
     std::cout << "FBK YAW: " << this -> fbkYaw << std::endl;
 
     std::cout << "DISTANCE TO TARGET: " << (this -> fbkPos - this -> target).norm() << std::endl;
+}
+bool BaseController::serviceCallBack(base_controller::start::Request &req, 
+    base_controller::start::Response &res) {
+        this -> started = true;
+    return this -> started;
 }
 
 bool BaseController::objectInRange(const int fromStart, const int fromEnd) {
@@ -171,6 +179,8 @@ geometry_msgs::Twist BaseController::getTwist() {
 
 void BaseController::update_function() {
     std::cout << "Calling update function" << std::endl;
-    this -> publisher.publish(this -> getTwist());
+    if (this -> started) {
+        this -> publisher.publish(this -> getTwist());
+    }
 }
 }

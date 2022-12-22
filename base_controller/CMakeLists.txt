@@ -17,6 +17,17 @@ find_package(catkin REQUIRED
     roscpp
     sensor_msgs
     geometry_msgs
+    genmsg
+    std_msgs
+)
+
+add_service_files(
+  FILES
+  start.srv
+)
+
+generate_messages(
+  DEPENDENCIES
 )
 
 ###################################
@@ -30,6 +41,8 @@ catkin_package(
     roscpp
     sensor_msgs
     geometry_msgs
+    genmsg
+    std_msgs
   DEPENDS 
 )
 

@@ -9,6 +9,7 @@
 #include <math.h>
 #include <cmath>
 #include <limits>
+#include "base_controller/start.h"
 
 namespace base_controller {
 
@@ -32,6 +33,7 @@ public:
     bool collisionDetected();
     void update_function();
     bool objectInRange(const int fromStart, const int fromEnd);
+    bool serviceCallBack(base_controller::start::Request &req, base_controller::start::Response &res);
     bool objectAtRight();
     double getTargetAngle();
     int getUpdateFrequency();
@@ -57,6 +59,8 @@ private:
     Eigen::Vector3d fbkPos;
     double fbkYaw;
     State state;
+    bool started;
+    ros::ServiceServer server;
 };
 
 
